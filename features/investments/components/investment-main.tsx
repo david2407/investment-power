@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import copData from "@/data/cop-data.json"
 import { groupByCurrency, type CurrencyGroup } from "../calculations"
 import { formatCurrency, formatPercent } from "../format"
 import { useInvestments } from "../use-investments"
@@ -18,6 +19,12 @@ export function InvestmentMain() {
 
   const groups = groupByCurrency(investments)
   const positionCount = investments.length
+
+  const summaryCards = groups.flatMap((group) =>
+    group.currency === "USD"
+      ? [group, toCopCurrencyGroup(group, copData.value)]
+      : [group],
+  )
 
   function handleAdd(input: NewInvestment) {
     addInvestment(input)
@@ -61,9 +68,9 @@ export function InvestmentMain() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {groups.length > 0 ? (
-            groups.map((group) => <SummaryCard key={group.currency} group={group} />)
+        <div className="mt-8 grid gap-4 lg:grid-cols-2">
+          {summaryCards.length > 0 ? (
+            summaryCards.map((group) => <SummaryCard key={group.currency} group={group} />)
           ) : (
             <EmptySummaryCard />
           )}
@@ -194,6 +201,17 @@ function SummaryCard({ group }: { group: CurrencyGroup }) {
       </dl>
     </article>
   )
+}
+
+function toCopCurrencyGroup(group: CurrencyGroup, copPerUsd: number): CurrencyGroup {
+  return {
+    currency: "COP",
+    costBasis: group.costBasis * copPerUsd,
+    currentValue: group.currentValue * copPerUsd,
+    totalGainLoss: group.totalGainLoss * copPerUsd,
+    gainLossPercent: group.gainLossPercent,
+    positionCount: group.positionCount,
+  }
 }
 
 function EmptySummaryCard() {
