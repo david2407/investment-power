@@ -4,13 +4,17 @@ import { useState } from "react"
 import { groupByCurrency, type CurrencyGroup } from "../calculations"
 import { formatCurrency, formatPercent } from "../format"
 import { useInvestments } from "../use-investments"
-import type { NewInvestment } from "../types"
+import type { Investment, NewInvestment } from "../types"
 import { CreateInvestmentForm } from "./create-investment-form"
+import { DeleteInvestmentDialog } from "./delete-investment-dialog"
 import { HoldingsTable } from "./holdings-table"
 
 export function InvestmentMain() {
-  const { investments, storageStatus, addInvestment } = useInvestments()
+  const { investments, storageStatus, addInvestment, deleteInvestment } =
+    useInvestments()
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<Investment | null>(null)
+  const [deleteFailed, setDeleteFailed] = useState(false)
 
   const groups = groupByCurrency(investments)
   const positionCount = investments.length
@@ -18,6 +22,23 @@ export function InvestmentMain() {
   function handleAdd(input: NewInvestment) {
     addInvestment(input)
     setIsFormOpen(false)
+  }
+
+  function handleRequestDelete(investment: Investment) {
+    setDeleteFailed(false)
+    setPendingDelete(investment)
+  }
+
+  function handleCancelDelete() {
+    setDeleteFailed(false)
+    setPendingDelete(null)
+  }
+
+  function handleConfirmDelete() {
+    if (!pendingDelete) return
+    const result = deleteInvestment(pendingDelete.id)
+    setPendingDelete(null)
+    setDeleteFailed(!result.deleted)
   }
 
   return (
@@ -81,11 +102,24 @@ export function InvestmentMain() {
 
         <div className="mt-6">
           {positionCount > 0 ? (
-            <HoldingsTable investments={investments} />
+            <HoldingsTable
+              investments={investments}
+              onDelete={handleRequestDelete}
+            />
           ) : (
             <EmptyState onAdd={() => setIsFormOpen(true)} />
           )}
         </div>
+
+        {deleteFailed ? (
+          <p
+            role="alert"
+            className="mt-6 rounded-xl border border-loss/30 bg-loss/10 px-4 py-3 text-sm text-loss"
+          >
+            That position couldn&apos;t be deleted. Browser storage may be full or
+            unavailable, so nothing was changed. Try again.
+          </p>
+        ) : null}
       </section>
 
       {storageStatus === "unavailable" ? (
@@ -97,6 +131,14 @@ export function InvestmentMain() {
 
       {isFormOpen ? (
         <CreateInvestmentForm onClose={() => setIsFormOpen(false)} onAdd={handleAdd} />
+      ) : null}
+
+      {pendingDelete ? (
+        <DeleteInvestmentDialog
+          investment={pendingDelete}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+        />
       ) : null}
     </main>
   )

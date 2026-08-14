@@ -2,10 +2,12 @@
 
 import { useSyncExternalStore } from "react"
 import {
+  deleteInvestment,
   getInvestments,
   getStorageStatus,
   persistInvestment,
   subscribe,
+  type DeleteResult,
   type PersistResult,
 } from "./storage.client"
 import type { NewInvestment } from "./types"
@@ -22,5 +24,6 @@ export function useInvestments() {
     investments,
     storageStatus,
     addInvestment: persistInvestment as (input: NewInvestment) => PersistResult,
+    deleteInvestment: deleteInvestment as (id: string) => DeleteResult,
   }
 }

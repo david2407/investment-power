@@ -1,4 +1,4 @@
-import { STORAGE_KEY } from "../storage.client"
+import { DELETED_STORAGE_KEY, STORAGE_KEY } from "../storage.client"
 
 export function InvestmentFooter() {
   return (
@@ -8,7 +8,7 @@ export function InvestmentFooter() {
           Ledger — a local-first investment ledger.
         </p>
         <p className="font-mono text-xs text-ink-faint">
-          data: {STORAGE_KEY} · stored in this browser
+          data: {STORAGE_KEY} · archive: {DELETED_STORAGE_KEY} · stored in this browser
         </p>
       </div>
     </footer>

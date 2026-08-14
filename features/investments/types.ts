@@ -15,6 +15,10 @@ export interface Investment {
 
 export type NewInvestment = Omit<Investment, "id">
 
+export interface DeletedInvestment extends Investment {
+  deletedAt: string
+}
+
 export interface InvestmentFormInput {
   assetType: AssetType
   assetName: string
