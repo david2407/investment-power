@@ -7,8 +7,10 @@ import {
   getStorageStatus,
   persistInvestment,
   subscribe,
+  updateCurrentPrice,
   type DeleteResult,
   type PersistResult,
+  type UpdateResult,
 } from "./storage.client"
 import type { NewInvestment } from "./types"
 
@@ -25,5 +27,6 @@ export function useInvestments() {
     storageStatus,
     addInvestment: persistInvestment as (input: NewInvestment) => PersistResult,
     deleteInvestment: deleteInvestment as (id: string) => DeleteResult,
+    updateCurrentPrice: updateCurrentPrice as (id: string, currentPrice: number) => UpdateResult,
   }
 }

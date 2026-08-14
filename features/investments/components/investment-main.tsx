@@ -10,7 +10,7 @@ import { DeleteInvestmentDialog } from "./delete-investment-dialog"
 import { HoldingsTable } from "./holdings-table"
 
 export function InvestmentMain() {
-  const { investments, storageStatus, addInvestment, deleteInvestment } =
+  const { investments, storageStatus, addInvestment, deleteInvestment, updateCurrentPrice } =
     useInvestments()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Investment | null>(null)
@@ -80,7 +80,7 @@ export function InvestmentMain() {
               Holdings
             </h2>
             <p className="mt-1 text-sm text-ink-soft">
-              Positions across brokers and platforms.
+              Tap a current price to update it. Positions across brokers and platforms.
             </p>
           </div>
           <button
@@ -105,6 +105,7 @@ export function InvestmentMain() {
             <HoldingsTable
               investments={investments}
               onDelete={handleRequestDelete}
+              onUpdateCurrentPrice={updateCurrentPrice}
             />
           ) : (
             <EmptyState onAdd={() => setIsFormOpen(true)} />

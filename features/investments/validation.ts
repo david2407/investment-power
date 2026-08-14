@@ -11,6 +11,17 @@ function parseNumber(raw: string): number {
   return Number(raw.replace(/,/g, "").trim())
 }
 
+export function parsePrice(raw: string): number {
+  return parseNumber(raw)
+}
+
+export function validatePriceInput(raw: string, label = "Price"): string | null {
+  if (!raw.trim()) return `${label} is required.`
+  const value = parsePrice(raw)
+  if (!Number.isFinite(value) || value < 0) return "Price must be zero or higher."
+  return null
+}
+
 export function validateInvestmentForm(input: InvestmentFormInput): ValidationResult {
   const errors: FormErrors = {}
 
@@ -34,15 +45,15 @@ export function validateInvestmentForm(input: InvestmentFormInput): ValidationRe
   } else if (!Number.isFinite(quantity) || quantity <= 0) {
     errors.quantity = "Quantity must be greater than zero."
   }
-  if (!input.purchasePrice.trim()) {
-    errors.purchasePrice = "Purchase price is required."
-  } else if (!Number.isFinite(purchasePrice) || purchasePrice < 0) {
-    errors.purchasePrice = "Price must be zero or higher."
+
+  const purchasePriceError = validatePriceInput(input.purchasePrice, "Purchase price")
+  if (purchasePriceError) {
+    errors.purchasePrice = purchasePriceError
   }
-  if (!input.currentPrice.trim()) {
-    errors.currentPrice = "Current price is required."
-  } else if (!Number.isFinite(currentPrice) || currentPrice < 0) {
-    errors.currentPrice = "Price must be zero or higher."
+
+  const currentPriceError = validatePriceInput(input.currentPrice, "Current price")
+  if (currentPriceError) {
+    errors.currentPrice = currentPriceError
   }
   if (!purchaseDate) {
     errors.purchaseDate = "Purchase date is required."

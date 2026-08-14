@@ -154,6 +154,33 @@ export interface PersistResult {
   persisted: boolean
 }
 
+export interface UpdateResult {
+  persisted: boolean
+}
+
+export function updateCurrentPrice(id: string, currentPrice: number): UpdateResult {
+  const active = readAll()
+  if (!active.some((item) => item.id === id)) return { persisted: true }
+
+  const next = active.map((item) =>
+    item.id === id ? { ...item, currentPrice } : item,
+  )
+
+  let persisted = false
+  try {
+    const serialized = JSON.stringify(next)
+    window.localStorage.setItem(STORAGE_KEY, serialized)
+    cachedRaw = serialized
+    cachedValue = next
+    persisted = true
+  } catch {
+    cachedValue = next
+  }
+
+  listeners.forEach((callback) => callback())
+  return { persisted }
+}
+
 export function persistInvestment(input: NewInvestment): PersistResult {
   const investment: Investment = { id: createId(), ...input }
   const next = [investment, ...readAll()]
