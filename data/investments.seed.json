@@ -1,0 +1,50 @@
+[
+  {
+    "id": "seed-1",
+    "assetType": "stock",
+    "assetName": "Apple",
+    "symbol": "AAPL",
+    "platform": "Interactive Brokers",
+    "quantity": 12,
+    "purchasePrice": 172.5,
+    "purchaseDate": "2024-11-02",
+    "currentPrice": 228.32,
+    "currency": "USD"
+  },
+  {
+    "id": "seed-2",
+    "assetType": "stock",
+    "assetName": "Nvidia",
+    "symbol": "NVDA",
+    "platform": "Fidelity",
+    "quantity": 8,
+    "purchasePrice": 96.4,
+    "purchaseDate": "2024-05-20",
+    "currentPrice": 131.6,
+    "currency": "USD"
+  },
+  {
+    "id": "seed-3",
+    "assetType": "crypto",
+    "assetName": "Bitcoin",
+    "symbol": "BTC",
+    "platform": "Coinbase",
+    "quantity": 0.05,
+    "purchasePrice": 61000,
+    "purchaseDate": "2023-08-14",
+    "currentPrice": 68240,
+    "currency": "USD"
+  },
+  {
+    "id": "seed-4",
+    "assetType": "crypto",
+    "assetName": "Ethereum",
+    "symbol": "ETH",
+    "platform": "Kraken",
+    "quantity": 1.2,
+    "purchasePrice": 2400,
+    "purchaseDate": "2024-01-10",
+    "currentPrice": 2210.5,
+    "currency": "USD"
+  }
+]
