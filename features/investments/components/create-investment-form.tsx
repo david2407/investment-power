@@ -132,7 +132,7 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
             />
           </Field>
 
-          <Field id="symbol" label="Symbol" hint="Optional">
+          <Field id="symbol" label="Symbol" error={errors.symbol}>
             <input
               id="symbol"
               type="text"
@@ -140,6 +140,8 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
               onChange={(event) => updateField("symbol", event.target.value)}
               placeholder="e.g. AAPL"
               className={inputClasses}
+              aria-invalid={errors.symbol ? true : undefined}
+              aria-describedby={errors.symbol ? "symbol-error" : undefined}
             />
           </Field>
 

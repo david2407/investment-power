@@ -158,6 +158,41 @@ export interface UpdateResult {
   persisted: boolean
 }
 
+export interface BatchUpdateResult {
+  updatedCount: number
+  persisted: boolean
+}
+
+export function updateCurrentPrices(
+  updates: ReadonlyArray<{ id: string; currentPrice: number }>,
+): BatchUpdateResult {
+  const active = readAll()
+  const byId = new Map(updates.map((update) => [update.id, update]))
+  let updatedCount = 0
+  const next = active.map((item) => {
+    const update = byId.get(item.id)
+    if (!update) return item
+    updatedCount += 1
+    return { ...item, currentPrice: update.currentPrice }
+  })
+
+  if (updatedCount === 0) return { updatedCount: 0, persisted: true }
+
+  let persisted = false
+  try {
+    const serialized = JSON.stringify(next)
+    window.localStorage.setItem(STORAGE_KEY, serialized)
+    cachedRaw = serialized
+    cachedValue = next
+    persisted = true
+  } catch {
+    cachedValue = next
+  }
+
+  listeners.forEach((callback) => callback())
+  return { updatedCount, persisted }
+}
+
 export function updateCurrentPrice(id: string, currentPrice: number): UpdateResult {
   const active = readAll()
   if (!active.some((item) => item.id === id)) return { persisted: true }

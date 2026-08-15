@@ -10,12 +10,32 @@ import { CreateInvestmentForm } from "./create-investment-form"
 import { DeleteInvestmentDialog } from "./delete-investment-dialog"
 import { HoldingsTable } from "./holdings-table"
 
+interface RefreshStatus {
+  message: string
+  isError: boolean
+}
+
+const MAX_REFRESH_REQUESTS = 25
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export function InvestmentMain() {
-  const { investments, storageStatus, addInvestment, deleteInvestment, updateCurrentPrice } =
-    useInvestments()
+  const {
+    investments,
+    storageStatus,
+    addInvestment,
+    deleteInvestment,
+    updateCurrentPrice,
+    updateCurrentPrices,
+  } = useInvestments()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Investment | null>(null)
   const [deleteFailed, setDeleteFailed] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [refreshLabel, setRefreshLabel] = useState<string | null>(null)
+  const [refreshStatus, setRefreshStatus] = useState<RefreshStatus | null>(null)
 
   const groups = groupByCurrency(investments)
   const positionCount = investments.length
@@ -46,6 +66,121 @@ export function InvestmentMain() {
     const result = deleteInvestment(pendingDelete.id)
     setPendingDelete(null)
     setDeleteFailed(!result.deleted)
+  }
+
+  async function handleRefreshPrices() {
+    if (isRefreshing) return
+
+    const groups = new Map<
+      string,
+      Array<{ id: string; symbol: string; assetType: Investment["assetType"]; currency: string }>
+    >()
+    for (const investment of investments) {
+      const symbol = investment.symbol.trim()
+      if (!symbol) continue
+      const item = {
+        id: investment.id,
+        symbol,
+        assetType: investment.assetType,
+        currency: investment.currency,
+      }
+      const key = `${investment.assetType}:${symbol.toUpperCase()}:${investment.currency}`
+      const existing = groups.get(key)
+      if (existing) {
+        existing.push(item)
+      } else {
+        groups.set(key, [item])
+      }
+    }
+
+    const uniqueRequests = [...groups.values()]
+    const total = uniqueRequests.length
+    const skippedCount =
+      investments.length - uniqueRequests.reduce((sum, rows) => sum + rows.length, 0)
+
+    const quotes: Array<{ id: string; currentPrice: number }> = []
+    const failures: Array<{ id: string; symbol: string; error: string }> = []
+
+    setIsRefreshing(true)
+    setRefreshStatus(null)
+    setRefreshLabel(total > 0 ? `Refreshing 1 of ${total}…` : null)
+
+    try {
+      for (let index = 0; index < total; index += 1) {
+        const rows = uniqueRequests[index]
+        setRefreshLabel(`Refreshing ${index + 1} of ${total}…`)
+
+        if (index >= MAX_REFRESH_REQUESTS) {
+          for (const row of rows) {
+            failures.push({
+              id: row.id,
+              symbol: row.symbol,
+              error: "Skipped: more than 25 unique symbols in one refresh.",
+            })
+          }
+          continue
+        }
+
+        const res = await fetch("/api/investments/quotes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rows),
+        })
+
+        if (!res.ok) {
+          for (const row of rows) {
+            failures.push({
+              id: row.id,
+              symbol: row.symbol,
+              error: "The price service isn't available.",
+            })
+          }
+          continue
+        }
+
+        const data = (await res.json()) as {
+          quotes: Array<{ id: string; currentPrice: number }>
+          failures: Array<{ id: string; symbol: string; error: string }>
+        }
+        quotes.push(...data.quotes)
+        failures.push(...data.failures)
+
+        if (index < total - 1) await sleep(1000)
+      }
+
+      const persisted = updateCurrentPrices(quotes)
+
+      const parts: string[] = []
+      if (quotes.length > 0) {
+        const updated = `${quotes.length} price${quotes.length === 1 ? "" : "s"} updated`
+        parts.push(persisted.persisted ? updated : `${updated} for this session only`)
+      }
+      if (failures.length > 0) {
+        const uniqueSymbols = [...new Set(failures.map((failure) => failure.symbol))]
+        const shown = uniqueSymbols.slice(0, 5).join(", ")
+        const ellipsis = uniqueSymbols.length > 5 ? ", …" : ""
+        parts.push(`Couldn't refresh ${failures.length} (${shown}${ellipsis})`)
+      }
+      if (skippedCount > 0) {
+        parts.push(
+          `${skippedCount} position${skippedCount === 1 ? "" : "s"} skipped (missing a symbol)`,
+        )
+      }
+      if (parts.length === 0) parts.push("Nothing to refresh")
+
+      setRefreshStatus({
+        message: parts.join(". "),
+        isError: failures.length > 0 || skippedCount > 0,
+      })
+    } catch {
+      setRefreshStatus({
+        message: "Couldn't reach the price service. Check your connection and try again.",
+        isError: true,
+      })
+    } finally {
+      setIsRefreshing(false)
+      setRefreshLabel(null)
+    }
   }
 
   return (
@@ -90,21 +225,48 @@ export function InvestmentMain() {
               Tap a current price to update it. Positions across brokers and platforms.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setIsFormOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-cobalt px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cobalt/90"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path
-                d="M7 3v8M3 7h8"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            Add investment
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleRefreshPrices}
+              disabled={isRefreshing || positionCount === 0}
+              aria-busy={isRefreshing}
+              className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:border-cobalt/40 hover:text-cobalt disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                aria-hidden="true"
+                className={isRefreshing ? "animate-spin" : undefined}
+              >
+                <path
+                  d="M12 7a5 5 0 1 1-1.47-3.54M12 2v2.5H9.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              {isRefreshing ? (refreshLabel ?? "Refreshing…") : "Refresh prices"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsFormOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full bg-cobalt px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cobalt/90"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path
+                  d="M7 3v8M3 7h8"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Add investment
+            </button>
+          </div>
         </div>
 
         <div className="mt-6">
@@ -118,6 +280,19 @@ export function InvestmentMain() {
             <EmptyState onAdd={() => setIsFormOpen(true)} />
           )}
         </div>
+
+        {refreshStatus ? (
+          <p
+            role={refreshStatus.isError ? "alert" : "status"}
+            className={
+              refreshStatus.isError
+                ? "mt-6 rounded-xl border border-loss/30 bg-loss/10 px-4 py-3 text-sm text-loss"
+                : "mt-6 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-soft"
+            }
+          >
+            {refreshStatus.message}
+          </p>
+        ) : null}
 
         {deleteFailed ? (
           <p

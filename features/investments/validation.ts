@@ -37,6 +37,9 @@ export function validateInvestmentForm(input: InvestmentFormInput): ValidationRe
   if (!assetName) {
     errors.assetName = "Asset name is required."
   }
+  if (!symbol) {
+    errors.symbol = "Symbol is required for automatic price refreshes."
+  }
   if (!platform) {
     errors.platform = "Broker or platform is required."
   }
@@ -76,7 +79,7 @@ export function validateInvestmentForm(input: InvestmentFormInput): ValidationRe
     value: {
       assetType: input.assetType,
       assetName,
-      symbol,
+      symbol: symbol.toUpperCase(),
       platform,
       quantity,
       purchasePrice,

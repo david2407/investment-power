@@ -8,6 +8,8 @@ import {
   persistInvestment,
   subscribe,
   updateCurrentPrice,
+  updateCurrentPrices,
+  type BatchUpdateResult,
   type DeleteResult,
   type PersistResult,
   type UpdateResult,
@@ -28,5 +30,8 @@ export function useInvestments() {
     addInvestment: persistInvestment as (input: NewInvestment) => PersistResult,
     deleteInvestment: deleteInvestment as (id: string) => DeleteResult,
     updateCurrentPrice: updateCurrentPrice as (id: string, currentPrice: number) => UpdateResult,
+    updateCurrentPrices: updateCurrentPrices as (
+      updates: ReadonlyArray<{ id: string; currentPrice: number }>,
+    ) => BatchUpdateResult,
   }
 }
