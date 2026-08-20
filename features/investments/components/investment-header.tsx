@@ -1,8 +1,19 @@
-export function InvestmentHeader() {
+import Link from "next/link"
+import { createClient } from "@/lib/supabase/server"
+import { signOut } from "@/app/auth/actions"
+
+export async function InvestmentHeader() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const displayName = user?.user_metadata?.full_name ?? user?.email ?? null
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/80 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
-        <a href="#" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <svg
             width="28"
             height="28"
@@ -21,15 +32,35 @@ export function InvestmentHeader() {
           <span className="hidden text-sm text-ink-soft sm:inline">
             personal portfolio
           </span>
-        </a>
+        </Link>
 
-        <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs text-ink-soft">
-          <span
-            className="h-2 w-2 rounded-full bg-gain"
-            aria-hidden="true"
-          />
-          Saved on this device
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs text-ink-soft">
+            <span className="h-2 w-2 rounded-full bg-gain" aria-hidden="true" />
+            Saved to your account
+          </p>
+
+          {user ? (
+            <form action={signOut}>
+              <span className="mr-2 hidden text-sm text-ink-soft md:inline">
+                {displayName}
+              </span>
+              <button
+                type="submit"
+                className="rounded-full border border-line bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-cobalt/40 hover:text-cobalt"
+              >
+                Sign out
+              </button>
+            </form>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-full bg-cobalt px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cobalt/90"
+            >
+              Sign in
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   )

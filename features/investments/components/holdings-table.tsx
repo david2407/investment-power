@@ -3,12 +3,12 @@ import { getInvestmentMetrics } from "../calculations"
 import { formatCurrency, formatDate, formatPercent, formatQuantity } from "../format"
 import { parsePrice, validatePriceInput } from "../validation"
 import type { Investment } from "../types"
-import type { UpdateResult } from "../storage.client"
+import type { UpdateResult } from "../use-investments"
 
 interface HoldingsTableProps {
   investments: Investment[]
   onDelete: (investment: Investment) => void
-  onUpdateCurrentPrice: (id: string, currentPrice: number) => UpdateResult
+  onUpdateCurrentPrice: (id: string, currentPrice: number) => Promise<UpdateResult>
 }
 
 export function HoldingsTable({
@@ -68,7 +68,7 @@ export function HoldingsTable({
 interface InvestmentRowProps {
   investment: Investment
   onDelete: (investment: Investment) => void
-  onUpdateCurrentPrice: (id: string, currentPrice: number) => UpdateResult
+  onUpdateCurrentPrice: (id: string, currentPrice: number) => Promise<UpdateResult>
 }
 
 function InvestmentRow({
@@ -83,6 +83,7 @@ function InvestmentRow({
   const direction = isGain ? "▲" : isLoss ? "▼" : null
 
   const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [draft, setDraft] = useState("")
   const [priceError, setPriceError] = useState<string | null>(null)
   const [priceWarning, setPriceWarning] = useState<string | null>(null)
@@ -109,11 +110,16 @@ function InvestmentRow({
       setPriceError(error)
       return
     }
-    const result = onUpdateCurrentPrice(investment.id, parsePrice(draft))
-    if (!result.persisted) {
-      setPriceWarning("Saved for this session only; browser storage is unavailable.")
-    }
-    setIsEditing(false)
+    const price = parsePrice(draft)
+    setPriceWarning(null)
+    setIsSaving(true)
+    onUpdateCurrentPrice(investment.id, price).then((result) => {
+      if (!result.persisted) {
+        setPriceWarning("Couldn't save to your account. Check your connection and try again.")
+      }
+      setIsSaving(false)
+      setIsEditing(false)
+    })
   }
 
   function cancelEditing() {
@@ -171,6 +177,7 @@ function InvestmentRow({
               type="text"
               inputMode="decimal"
               value={draft}
+              disabled={isSaving}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleBlur}

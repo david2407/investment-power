@@ -63,9 +63,11 @@ export function InvestmentMain() {
 
   function handleConfirmDelete() {
     if (!pendingDelete) return
-    const result = deleteInvestment(pendingDelete.id)
+    const id = pendingDelete.id
     setPendingDelete(null)
-    setDeleteFailed(!result.deleted)
+    deleteInvestment(id).then((result) => {
+      setDeleteFailed(!result.deleted)
+    })
   }
 
   async function handleRefreshPrices() {
@@ -148,12 +150,16 @@ export function InvestmentMain() {
         if (index < total - 1) await sleep(1000)
       }
 
-      const persisted = updateCurrentPrices(quotes)
+      const persisted = await updateCurrentPrices(quotes)
 
       const parts: string[] = []
       if (quotes.length > 0) {
         const updated = `${quotes.length} price${quotes.length === 1 ? "" : "s"} updated`
-        parts.push(persisted.persisted ? updated : `${updated} for this session only`)
+        parts.push(
+          persisted.persisted
+            ? updated
+            : `${updated} but couldn't save to your account`,
+        )
       }
       if (failures.length > 0) {
         const uniqueSymbols = [...new Set(failures.map((failure) => failure.symbol))]
@@ -299,16 +305,14 @@ export function InvestmentMain() {
             role="alert"
             className="mt-6 rounded-xl border border-loss/30 bg-loss/10 px-4 py-3 text-sm text-loss"
           >
-            That position couldn&apos;t be deleted. Browser storage may be full or
-            unavailable, so nothing was changed. Try again.
+          That position couldn&apos;t be deleted. Check your connection and try again.
           </p>
         ) : null}
       </section>
 
       {storageStatus === "unavailable" ? (
-        <p className="mt-6 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-soft">
-          Storage is unavailable in this browser, so new positions will only last for
-          this session.
+        <p className="mt-6 rounded-xl border border-loss/30 bg-loss/10 px-4 py-3 text-sm text-loss">
+          Couldn&apos;t reach your account data. Check your connection and sign in again.
         </p>
       ) : null}
 

@@ -1,4 +1,5 @@
 import type { AssetType } from "@/features/investments/types"
+import { createClient } from "@/lib/supabase/server"
 
 const QUOTE_URL = "https://www.alphavantage.co/query"
 
@@ -130,6 +131,14 @@ async function fetchQuoteWithRetry(
 }
 
 export async function POST(request: Request) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return Response.json({ quotes: [], failures: [] }, { status: 401 })
+  }
+
   const apiKey = process.env.ALPHA_VANTAGE_API_KEY
   if (!apiKey) {
     return Response.json(

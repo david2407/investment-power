@@ -51,8 +51,7 @@ export function DeleteInvestmentDialog({
           Delete investment?
         </h2>
         <p id="delete-investment-description" className="mt-1 text-sm text-ink-soft">
-          {identifier} will be removed from your holdings. A copy is kept in the
-          deleted-investments archive stored on this device.
+          {identifier} will be removed from your holdings. This can&apos;t be undone.
         </p>
       </div>
 
