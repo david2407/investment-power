@@ -1,6 +1,11 @@
 import type { InvestmentFormInput, NewInvestment } from "./types"
 
-export type FormErrors = Partial<Record<keyof InvestmentFormInput, string>>
+export interface ValidationError {
+  key: string
+  params?: Record<string, string | number>
+}
+
+export type FormErrors = Partial<Record<keyof InvestmentFormInput, ValidationError>>
 
 export interface ValidationResult {
   errors: FormErrors
@@ -15,10 +20,13 @@ export function parsePrice(raw: string): number {
   return parseNumber(raw)
 }
 
-export function validatePriceInput(raw: string, label = "Price"): string | null {
-  if (!raw.trim()) return `${label} is required.`
+export function validatePriceInput(
+  raw: string,
+  labelKey = "price",
+): ValidationError | null {
+  if (!raw.trim()) return { key: "priceRequired", params: { label: labelKey } }
   const value = parsePrice(raw)
-  if (!Number.isFinite(value) || value < 0) return "Price must be zero or higher."
+  if (!Number.isFinite(value) || value < 0) return { key: "priceNegative" }
   return null
 }
 
@@ -35,39 +43,42 @@ export function validateInvestmentForm(input: InvestmentFormInput): ValidationRe
   const currentPrice = parseNumber(input.currentPrice)
 
   if (!assetName) {
-    errors.assetName = "Asset name is required."
+    errors.assetName = { key: "assetNameRequired" }
   }
   if (!symbol) {
-    errors.symbol = "Symbol is required for automatic price refreshes."
+    errors.symbol = { key: "symbolRequired" }
   }
   if (!platform) {
-    errors.platform = "Broker or platform is required."
+    errors.platform = { key: "platformRequired" }
   }
   if (!input.quantity.trim()) {
-    errors.quantity = "Quantity is required."
+    errors.quantity = { key: "quantityRequired" }
   } else if (!Number.isFinite(quantity) || quantity <= 0) {
-    errors.quantity = "Quantity must be greater than zero."
+    errors.quantity = { key: "quantityPositive" }
   }
 
-  const purchasePriceError = validatePriceInput(input.purchasePrice, "Purchase price")
+  const purchasePriceError = validatePriceInput(
+    input.purchasePrice,
+    "purchasePrice",
+  )
   if (purchasePriceError) {
     errors.purchasePrice = purchasePriceError
   }
 
-  const currentPriceError = validatePriceInput(input.currentPrice, "Current price")
+  const currentPriceError = validatePriceInput(input.currentPrice, "currentPrice")
   if (currentPriceError) {
     errors.currentPrice = currentPriceError
   }
   if (!purchaseDate) {
-    errors.purchaseDate = "Purchase date is required."
+    errors.purchaseDate = { key: "purchaseDateRequired" }
   } else {
     const date = new Date(`${purchaseDate}T00:00:00`)
     if (Number.isNaN(date.getTime())) {
-      errors.purchaseDate = "Enter a valid date."
+      errors.purchaseDate = { key: "invalidDate" }
     }
   }
   if (!currency) {
-    errors.currency = "Currency is required."
+    errors.currency = { key: "currencyRequired" }
   }
 
   if (Object.keys(errors).length > 0) {

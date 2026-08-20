@@ -23,7 +23,7 @@ interface QuoteSuccess {
 interface QuoteFailure {
   id: string
   symbol: string
-  error: string
+  code: string
 }
 
 function isAssetType(value: unknown): value is AssetType {
@@ -57,17 +57,17 @@ function quoteUrl(item: QuoteItem, apiKey: string): URL {
 
 function readQuoteError(
   body: unknown,
-): { message: string; retryable: boolean } | null {
+): { code: string; retryable: boolean } | null {
   if (typeof body !== "object" || body === null) return null
   const record = body as Record<string, unknown>
   if (typeof record["Error Message"] === "string") {
-    return { message: "No quote found for this symbol.", retryable: false }
+    return { code: "noQuote", retryable: false }
   }
   if (typeof record["Note"] === "string") {
-    return { message: "The price service rate limit was reached.", retryable: true }
+    return { code: "rateLimit", retryable: true }
   }
   if (typeof record["Information"] === "string") {
-    return { message: "The price service rate limit was reached.", retryable: true }
+    return { code: "rateLimit", retryable: true }
   }
   return null
 }
@@ -100,24 +100,24 @@ function sleep(ms: number): Promise<void> {
 async function fetchQuoteOnce(
   item: QuoteItem,
   apiKey: string,
-): Promise<{ price: number } | { error: string; retryable: boolean }> {
+): Promise<{ price: number } | { code: string; retryable: boolean }> {
   try {
     const res = await fetch(quoteUrl(item, apiKey), { cache: "no-store" })
     const body: unknown = await res.json()
     const quoteError = readQuoteError(body)
-    if (quoteError) return { error: quoteError.message, retryable: quoteError.retryable }
+    if (quoteError) return { code: quoteError.code, retryable: quoteError.retryable }
     const price = readPrice(body)
-    if (price === null) return { error: "No current price available.", retryable: false }
+    if (price === null) return { code: "noCurrentPrice", retryable: false }
     return { price }
   } catch {
-    return { error: "Couldn't reach the price service.", retryable: true }
+    return { code: "serviceUnavailable", retryable: true }
   }
 }
 
 async function fetchQuoteWithRetry(
   item: QuoteItem,
   apiKey: string,
-): Promise<{ price: number } | { error: string }> {
+): Promise<{ price: number } | { code: string }> {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
     const result = await fetchQuoteOnce(item, apiKey)
     if ("price" in result) return result
@@ -125,9 +125,9 @@ async function fetchQuoteWithRetry(
       await sleep(RETRY_BASE_DELAY_MS * (attempt + 1))
       continue
     }
-    return { error: result.error }
+    return { code: result.code }
   }
-  return { error: "Couldn't fetch a quote." }
+  return { code: "serviceUnavailable" }
 }
 
 export async function POST(request: Request) {
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
         failures.push({
           id,
           symbol: item.symbol,
-          error: "Skipped: more than 25 unique symbols in one refresh. Refresh in smaller groups.",
+          code: "tooMany",
         })
       }
       continue
@@ -198,7 +198,7 @@ export async function POST(request: Request) {
       }
     } else {
       for (const id of ids) {
-        failures.push({ id, symbol: item.symbol, error: result.error })
+        failures.push({ id, symbol: item.symbol, code: result.code })
       }
     }
   }

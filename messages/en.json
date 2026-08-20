@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "title": "Ledger · Personal Investment Portfolio",
+    "description": "A local-first ledger for tracking stock and crypto holdings, gains, and losses."
+  },
+  "language": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English"
+  },
+  "header": {
+    "brand": "Ledger",
+    "tagline": "personal portfolio",
+    "saved": "Saved to your account",
+    "signOut": "Sign out",
+    "signIn": "Sign in"
+  },
+  "footer": {
+    "ledger": "Ledger — a personal investment ledger.",
+    "data": "data: investments · stored in your account"
+  },
+  "login": {
+    "title": "Ledger",
+    "subtitle": "Sign in to your portfolio",
+    "continueWithGoogle": "Continue with Google",
+    "redirecting": "Redirecting…",
+    "startError": "Couldn't start sign-in. Please try again.",
+    "authError": "Sign-in didn't complete. Please try again."
+  },
+  "portfolio": {
+    "eyebrow": "Portfolio",
+    "overview": "Overview",
+    "noPositionsTracked": "No positions tracked yet",
+    "positions": "{count, plural, one {# position} other {# positions}}",
+    "totalReturn": "Total return",
+    "invested": "Invested",
+    "currentValue": "Current value",
+    "noPositionsYet": "No positions yet"
+  },
+  "holdings": {
+    "title": "Holdings",
+    "subtitle": "Tap a current price to update it. Positions across brokers and platforms.",
+    "refreshPrices": "Refresh prices",
+    "refreshing": "Refreshing…",
+    "refreshProgress": "Refreshing {current} of {total}…",
+    "addInvestment": "Add investment",
+    "emptyTitle": "No positions yet",
+    "emptyBody": "Add your first stock or crypto position to start tracking gains and losses.",
+    "deleteFailed": "That position couldn't be deleted. Check your connection and try again.",
+    "storageUnavailable": "Couldn't reach your account data. Check your connection and sign in again."
+  },
+  "refresh": {
+    "pricesUpdated": "{count, plural, one {# price updated} other {# prices updated}}",
+    "notSaved": "but couldn't save to your account",
+    "couldNotRefresh": "Couldn't refresh {count} ({shown}{ellipsis})",
+    "positionsSkipped": "{count, plural, one {# position skipped} other {# positions skipped}} (missing a symbol)",
+    "nothingToRefresh": "Nothing to refresh",
+    "serviceUnavailable": "Couldn't reach the price service. Check your connection and try again."
+  },
+  "table": {
+    "asset": "Asset",
+    "platform": "Platform",
+    "quantity": "Quantity",
+    "purchasePrice": "Purchase price",
+    "purchaseDate": "Purchase date",
+    "currentPrice": "Current price",
+    "totalGainLoss": "Total gain / loss",
+    "returnPercent": "Return %",
+    "actions": "Actions",
+    "currentPriceFor": "Current price for {name}",
+    "editCurrentPrice": "Edit current price for {name}",
+    "deleteAsset": "Delete {name}",
+    "tapToEdit": "Tap to edit",
+    "couldNotSave": "Couldn't save to your account. Check your connection and try again."
+  },
+  "form": {
+    "title": "Add investment",
+    "subtitle": "Log a stock or crypto position.",
+    "closeDialog": "Close dialog",
+    "assetType": "Asset type",
+    "stock": "Stock",
+    "crypto": "Crypto",
+    "assetName": "Asset name",
+    "symbol": "Symbol",
+    "platform": "Broker / platform",
+    "quantity": "Quantity",
+    "purchasePrice": "Purchase price",
+    "purchaseDate": "Purchase date",
+    "currentPrice": "Current price",
+    "currency": "Currency",
+    "placeholderName": "e.g. Apple",
+    "placeholderSymbol": "e.g. AAPL",
+    "placeholderPlatform": "e.g. Coinbase",
+    "placeholderQuantity": "e.g. 0.5",
+    "placeholderPrice": "e.g. 150.00",
+    "cancel": "Cancel",
+    "add": "Add investment"
+  },
+  "deleteDialog": {
+    "title": "Delete investment?",
+    "description": "{identifier} will be removed from your holdings. This can't be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete investment"
+  },
+  "validation": {
+    "priceRequired": "{label} is required.",
+    "priceNegative": "Price must be zero or higher.",
+    "assetNameRequired": "Asset name is required.",
+    "symbolRequired": "Symbol is required for automatic price refreshes.",
+    "platformRequired": "Broker or platform is required.",
+    "quantityRequired": "Quantity is required.",
+    "quantityPositive": "Quantity must be greater than zero.",
+    "purchaseDateRequired": "Purchase date is required.",
+    "invalidDate": "Enter a valid date.",
+    "currencyRequired": "Currency is required.",
+    "price": "Price",
+    "purchasePrice": "Purchase price",
+    "currentPrice": "Current price"
+  },
+  "quotes": {
+    "noQuote": "No quote found for this symbol.",
+    "rateLimit": "The price service rate limit was reached.",
+    "noCurrentPrice": "No current price available.",
+    "serviceUnavailable": "Couldn't reach the price service.",
+    "tooMany": "Skipped: more than 25 unique symbols in one refresh. Refresh in smaller groups."
+  }
+}

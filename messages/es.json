@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "title": "Ledger · Portafolio personal de inversiones",
+    "description": "Un libro personal para registrar acciones y criptomonedas, ganancias y pérdidas."
+  },
+  "language": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "English"
+  },
+  "header": {
+    "brand": "Ledger",
+    "tagline": "portafolio personal",
+    "saved": "Guardado en tu cuenta",
+    "signOut": "Cerrar sesión",
+    "signIn": "Iniciar sesión"
+  },
+  "footer": {
+    "ledger": "Ledger — un libro de inversiones personal.",
+    "data": "datos: inversiones · guardados en tu cuenta"
+  },
+  "login": {
+    "title": "Ledger",
+    "subtitle": "Inicia sesión en tu portafolio",
+    "continueWithGoogle": "Continuar con Google",
+    "redirecting": "Redirigiendo…",
+    "startError": "No se pudo iniciar el inicio de sesión. Inténtalo de nuevo.",
+    "authError": "El inicio de sesión no se completó. Inténtalo de nuevo."
+  },
+  "portfolio": {
+    "eyebrow": "Portafolio",
+    "overview": "Resumen",
+    "noPositionsTracked": "Aún no hay posiciones registradas",
+    "positions": "{count, plural, one {# posición} other {# posiciones}}",
+    "totalReturn": "Rendimiento total",
+    "invested": "Invertido",
+    "currentValue": "Valor actual",
+    "noPositionsYet": "Aún no hay posiciones"
+  },
+  "holdings": {
+    "title": "Cartera",
+    "subtitle": "Toca un precio actual para actualizarlo. Posiciones entre brokers y plataformas.",
+    "refreshPrices": "Actualizar precios",
+    "refreshing": "Actualizando…",
+    "refreshProgress": "Actualizando {current} de {total}…",
+    "addInvestment": "Agregar inversión",
+    "emptyTitle": "Aún no hay posiciones",
+    "emptyBody": "Agrega tu primera posición de acciones o criptomonedas para empezar a registrar ganancias y pérdidas.",
+    "deleteFailed": "No se pudo eliminar esa posición. Revisa tu conexión e inténtalo de nuevo.",
+    "storageUnavailable": "No se pudo acceder a los datos de tu cuenta. Revisa tu conexión e inicia sesión de nuevo."
+  },
+  "refresh": {
+    "pricesUpdated": "{count, plural, one {# precio actualizado} other {# precios actualizados}}",
+    "notSaved": "no se pudo guardar en tu cuenta",
+    "couldNotRefresh": "No se pudo actualizar {count} ({shown}{ellipsis})",
+    "positionsSkipped": "{count, plural, one {# posición omitida} other {# posiciones omitidas}} (falta un símbolo)",
+    "nothingToRefresh": "Nada que actualizar",
+    "serviceUnavailable": "No se pudo conectar con el servicio de precios. Revisa tu conexión e inténtalo de nuevo."
+  },
+  "table": {
+    "asset": "Activo",
+    "platform": "Plataforma",
+    "quantity": "Cantidad",
+    "purchasePrice": "Precio de compra",
+    "purchaseDate": "Fecha de compra",
+    "currentPrice": "Precio actual",
+    "totalGainLoss": "Ganancia / pérdida total",
+    "returnPercent": "Rendimiento %",
+    "actions": "Acciones",
+    "currentPriceFor": "Precio actual de {name}",
+    "editCurrentPrice": "Editar precio actual de {name}",
+    "deleteAsset": "Eliminar {name}",
+    "tapToEdit": "Toca para editar",
+    "couldNotSave": "No se pudo guardar en tu cuenta. Revisa tu conexión e inténtalo de nuevo."
+  },
+  "form": {
+    "title": "Agregar inversión",
+    "subtitle": "Registra una posición de acciones o criptomonedas.",
+    "closeDialog": "Cerrar diálogo",
+    "assetType": "Tipo de activo",
+    "stock": "Acción",
+    "crypto": "Criptomoneda",
+    "assetName": "Nombre del activo",
+    "symbol": "Símbolo",
+    "platform": "Broker / plataforma",
+    "quantity": "Cantidad",
+    "purchasePrice": "Precio de compra",
+    "purchaseDate": "Fecha de compra",
+    "currentPrice": "Precio actual",
+    "currency": "Moneda",
+    "placeholderName": "p. ej. Apple",
+    "placeholderSymbol": "p. ej. AAPL",
+    "placeholderPlatform": "p. ej. Coinbase",
+    "placeholderQuantity": "p. ej. 0.5",
+    "placeholderPrice": "p. ej. 150.00",
+    "cancel": "Cancelar",
+    "add": "Agregar inversión"
+  },
+  "deleteDialog": {
+    "title": "¿Eliminar inversión?",
+    "description": "{identifier} se eliminará de tu cartera. Esto no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar inversión"
+  },
+  "validation": {
+    "priceRequired": "{label} es obligatorio.",
+    "priceNegative": "El precio debe ser cero o mayor.",
+    "assetNameRequired": "El nombre del activo es obligatorio.",
+    "symbolRequired": "El símbolo es obligatorio para actualizar precios automáticamente.",
+    "platformRequired": "El broker o la plataforma es obligatorio.",
+    "quantityRequired": "La cantidad es obligatoria.",
+    "quantityPositive": "La cantidad debe ser mayor que cero.",
+    "purchaseDateRequired": "La fecha de compra es obligatoria.",
+    "invalidDate": "Ingresa una fecha válida.",
+    "currencyRequired": "La moneda es obligatoria.",
+    "price": "Precio",
+    "purchasePrice": "Precio de compra",
+    "currentPrice": "Precio actual"
+  },
+  "quotes": {
+    "noQuote": "No se encontró cotización para este símbolo.",
+    "rateLimit": "Se alcanzó el límite de solicitudes del servicio de precios.",
+    "noCurrentPrice": "No hay un precio actual disponible.",
+    "serviceUnavailable": "No se pudo conectar con el servicio de precios.",
+    "tooMany": "Omitido: más de 25 símbolos únicos en una actualización. Actualiza en grupos más pequeños."
+  }
+}

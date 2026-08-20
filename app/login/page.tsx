@@ -1,8 +1,13 @@
 import { Suspense } from "react"
+import { getLocale, getTranslations } from "next-intl/server"
 import { LoginButton } from "./login-button"
 import { LoginError } from "./login-error"
+import { LanguageSwitcher } from "@/features/i18n/components/language-switcher"
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("login")
+  const locale = await getLocale()
+
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-5 py-16">
       <div className="w-full rounded-2xl border border-line bg-surface p-8 shadow-sm">
@@ -20,8 +25,8 @@ export default function LoginPage() {
             <rect x="15" y="7" width="3" height="14" rx="1.5" fill="white" />
           </svg>
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-ink">Ledger</h1>
-            <p className="text-sm text-ink-soft">Sign in to your portfolio</p>
+            <h1 className="text-xl font-semibold tracking-tight text-ink">{t("title")}</h1>
+            <p className="text-sm text-ink-soft">{t("subtitle")}</p>
           </div>
         </div>
 
@@ -30,6 +35,10 @@ export default function LoginPage() {
         </Suspense>
 
         <LoginButton />
+      </div>
+
+      <div className="mt-6">
+        <LanguageSwitcher currentLocale={locale} />
       </div>
     </main>
   )

@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react"
-import { validateInvestmentForm, type FormErrors } from "../validation"
+import { useTranslations } from "next-intl"
+import { validateInvestmentForm, type FormErrors, type ValidationError } from "../validation"
 import type { InvestmentFormInput, NewInvestment } from "../types"
 
 const CURRENCIES = ["USD", "EUR", "GBP", "MXN"]
@@ -27,6 +28,8 @@ interface CreateInvestmentFormProps {
 }
 
 export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormProps) {
+  const t = useTranslations("form")
+  const vt = useTranslations("validation")
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [form, setForm] = useState<InvestmentFormInput>(EMPTY_FORM)
   const [errors, setErrors] = useState<FormErrors>({})
@@ -77,16 +80,14 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
               id="create-investment-title"
               className="text-lg font-semibold tracking-tight"
             >
-              Add investment
+              {t("title")}
             </h2>
-            <p className="mt-0.5 text-sm text-ink-soft">
-              Log a stock or crypto position.
-            </p>
+            <p className="mt-0.5 text-sm text-ink-soft">{t("subtitle")}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={t("closeDialog")}
             className="rounded-full p-2 text-ink-faint transition-colors hover:bg-paper hover:text-ink"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -103,8 +104,9 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
         <div className="grid gap-4 px-6 py-6 sm:grid-cols-2">
           <Field
             id="asset-type"
-            label="Asset type"
+            label={t("assetType")}
             error={errors.assetType}
+            errorTranslator={vt}
           >
             <select
               id="asset-type"
@@ -114,79 +116,109 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
               }
               className={inputClasses}
             >
-              <option value="stock">Stock</option>
-              <option value="crypto">Crypto</option>
+              <option value="stock">{t("stock")}</option>
+              <option value="crypto">{t("crypto")}</option>
             </select>
           </Field>
 
-          <Field id="asset-name" label="Asset name" error={errors.assetName}>
+          <Field
+            id="asset-name"
+            label={t("assetName")}
+            error={errors.assetName}
+            errorTranslator={vt}
+          >
             <input
               id="asset-name"
               type="text"
               value={form.assetName}
               onChange={(event) => updateField("assetName", event.target.value)}
-              placeholder="e.g. Apple"
+              placeholder={t("placeholderName")}
               className={inputClasses}
               aria-invalid={errors.assetName ? true : undefined}
               aria-describedby={errors.assetName ? "asset-name-error" : undefined}
             />
           </Field>
 
-          <Field id="symbol" label="Symbol" error={errors.symbol}>
+          <Field
+            id="symbol"
+            label={t("symbol")}
+            error={errors.symbol}
+            errorTranslator={vt}
+          >
             <input
               id="symbol"
               type="text"
               value={form.symbol}
               onChange={(event) => updateField("symbol", event.target.value)}
-              placeholder="e.g. AAPL"
+              placeholder={t("placeholderSymbol")}
               className={inputClasses}
               aria-invalid={errors.symbol ? true : undefined}
               aria-describedby={errors.symbol ? "symbol-error" : undefined}
             />
           </Field>
 
-          <Field id="platform" label="Broker / platform" error={errors.platform}>
+          <Field
+            id="platform"
+            label={t("platform")}
+            error={errors.platform}
+            errorTranslator={vt}
+          >
             <input
               id="platform"
               type="text"
               value={form.platform}
               onChange={(event) => updateField("platform", event.target.value)}
-              placeholder="e.g. Coinbase"
+              placeholder={t("placeholderPlatform")}
               className={inputClasses}
               aria-invalid={errors.platform ? true : undefined}
               aria-describedby={errors.platform ? "platform-error" : undefined}
             />
           </Field>
 
-          <Field id="quantity" label="Quantity" error={errors.quantity}>
+          <Field
+            id="quantity"
+            label={t("quantity")}
+            error={errors.quantity}
+            errorTranslator={vt}
+          >
             <input
               id="quantity"
               type="text"
               inputMode="decimal"
               value={form.quantity}
               onChange={(event) => updateField("quantity", event.target.value)}
-              placeholder="e.g. 0.5"
+              placeholder={t("placeholderQuantity")}
               className={inputClasses}
               aria-invalid={errors.quantity ? true : undefined}
               aria-describedby={errors.quantity ? "quantity-error" : undefined}
             />
           </Field>
 
-          <Field id="purchase-price" label="Purchase price" error={errors.purchasePrice}>
+          <Field
+            id="purchase-price"
+            label={t("purchasePrice")}
+            error={errors.purchasePrice}
+            errorTranslator={vt}
+          >
             <input
               id="purchase-price"
               type="text"
               inputMode="decimal"
               value={form.purchasePrice}
               onChange={(event) => updateField("purchasePrice", event.target.value)}
-              placeholder="e.g. 150.00"
+              placeholder={t("placeholderPrice")}
               className={inputClasses}
               aria-invalid={errors.purchasePrice ? true : undefined}
               aria-describedby={errors.purchasePrice ? "purchase-price-error" : undefined}
             />
           </Field>
 
-          <Field id="purchase-date" label="Purchase date" error={errors.purchaseDate}>
+          <Field
+            id="purchase-date"
+            label={t("purchaseDate")}
+            error={errors.purchaseDate}
+            errorTranslator={vt}
+          >
             <input
               id="purchase-date"
               type="date"
@@ -198,21 +230,31 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
             />
           </Field>
 
-          <Field id="current-price" label="Current price" error={errors.currentPrice}>
+          <Field
+            id="current-price"
+            label={t("currentPrice")}
+            error={errors.currentPrice}
+            errorTranslator={vt}
+          >
             <input
               id="current-price"
               type="text"
               inputMode="decimal"
               value={form.currentPrice}
               onChange={(event) => updateField("currentPrice", event.target.value)}
-              placeholder="e.g. 175.00"
+              placeholder={t("placeholderPrice")}
               className={inputClasses}
               aria-invalid={errors.currentPrice ? true : undefined}
               aria-describedby={errors.currentPrice ? "current-price-error" : undefined}
             />
           </Field>
 
-          <Field id="currency" label="Currency" error={errors.currency}>
+          <Field
+            id="currency"
+            label={t("currency")}
+            error={errors.currency}
+            errorTranslator={vt}
+          >
             <select
               id="currency"
               value={form.currency}
@@ -234,13 +276,13 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
             onClick={onClose}
             className="rounded-full px-5 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-paper hover:text-ink"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             type="submit"
             className="rounded-full bg-cobalt px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cobalt/90"
           >
-            Add investment
+            {t("add")}
           </button>
         </div>
       </form>
@@ -251,12 +293,12 @@ export function CreateInvestmentForm({ onClose, onAdd }: CreateInvestmentFormPro
 interface FieldProps {
   id: string
   label: string
-  hint?: string
-  error?: string
+  error?: ValidationError
+  errorTranslator: ReturnType<typeof useTranslations<"validation">>
   children: ReactNode
 }
 
-function Field({ id, label, hint, error, children }: FieldProps) {
+function Field({ id, label, error, errorTranslator, children }: FieldProps) {
   const describedBy = error ? `${id}-error` : undefined
   return (
     <div>
@@ -264,14 +306,23 @@ function Field({ id, label, hint, error, children }: FieldProps) {
         {label}
       </label>
       <div className="mt-1.5">{children}</div>
-      {hint && !error ? (
-        <p className="mt-1.5 text-xs text-ink-faint">{hint}</p>
-      ) : null}
       {error ? (
         <p id={describedBy} role="alert" className="mt-1.5 text-xs text-loss">
-          {error}
+          {renderValidationError(errorTranslator, error)}
         </p>
       ) : null}
     </div>
   )
+}
+
+function renderValidationError(
+  t: ReturnType<typeof useTranslations<"validation">>,
+  error: ValidationError,
+): string {
+  if (!error.params) return t(error.key)
+  const resolved: Record<string, string | number> = {}
+  for (const [key, value] of Object.entries(error.params)) {
+    resolved[key] = typeof value === "string" ? t(value) : value
+  }
+  return t(error.key, resolved)
 }

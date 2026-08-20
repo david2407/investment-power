@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { useTranslations } from "next-intl"
 import type { Investment } from "../types"
 
 interface DeleteInvestmentDialogProps {
@@ -14,6 +15,7 @@ export function DeleteInvestmentDialog({
   onCancel,
   onConfirm,
 }: DeleteInvestmentDialogProps) {
+  const t = useTranslations("deleteDialog")
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -48,10 +50,10 @@ export function DeleteInvestmentDialog({
           id="delete-investment-title"
           className="text-lg font-semibold tracking-tight"
         >
-          Delete investment?
+          {t("title")}
         </h2>
         <p id="delete-investment-description" className="mt-1 text-sm text-ink-soft">
-          {identifier} will be removed from your holdings. This can&apos;t be undone.
+          {t("description", { identifier })}
         </p>
       </div>
 
@@ -62,14 +64,14 @@ export function DeleteInvestmentDialog({
           onClick={onCancel}
           className="rounded-full px-5 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-paper hover:text-ink"
         >
-          Cancel
+          {t("cancel")}
         </button>
         <button
           type="button"
           onClick={onConfirm}
           className="rounded-full bg-loss px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-loss/90"
         >
-          Delete investment
+          {t("confirm")}
         </button>
       </div>
     </dialog>

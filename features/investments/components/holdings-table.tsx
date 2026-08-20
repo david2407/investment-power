@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react"
+import { useLocale, useTranslations } from "next-intl"
 import { getInvestmentMetrics } from "../calculations"
 import { formatCurrency, formatDate, formatPercent, formatQuantity } from "../format"
-import { parsePrice, validatePriceInput } from "../validation"
+import { parsePrice, validatePriceInput, type ValidationError } from "../validation"
 import type { Investment } from "../types"
 import type { UpdateResult } from "../use-investments"
 
@@ -16,37 +17,39 @@ export function HoldingsTable({
   onDelete,
   onUpdateCurrentPrice,
 }: HoldingsTableProps) {
+  const t = useTranslations("table")
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
       <table className="w-full min-w-[960px] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-line text-xs uppercase tracking-wider text-ink-faint">
             <th scope="col" className="sticky left-0 z-10 bg-surface px-5 py-3.5">
-              Asset
+              {t("asset")}
             </th>
             <th scope="col" className="px-5 py-3.5 font-medium">
-              Platform
+              {t("platform")}
             </th>
             <th scope="col" className="px-5 py-3.5 text-right font-medium">
-              Quantity
+              {t("quantity")}
             </th>
             <th scope="col" className="px-5 py-3.5 text-right font-medium">
-              Purchase price
+              {t("purchasePrice")}
             </th>
             <th scope="col" className="px-5 py-3.5 text-right font-medium">
-              Purchase date
+              {t("purchaseDate")}
             </th>
             <th scope="col" className="px-5 py-3.5 text-right font-medium">
-              Current price
+              {t("currentPrice")}
             </th>
             <th scope="col" className="px-5 py-3.5 text-right font-medium">
-              Total gain / loss
+              {t("totalGainLoss")}
             </th>
             <th scope="col" className="px-5 py-3.5 text-right font-medium">
-              Return %
+              {t("returnPercent")}
             </th>
             <th scope="col" className="px-5 py-3.5">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{t("actions")}</span>
             </th>
           </tr>
         </thead>
@@ -76,6 +79,9 @@ function InvestmentRow({
   onDelete,
   onUpdateCurrentPrice,
 }: InvestmentRowProps) {
+  const t = useTranslations("table")
+  const vt = useTranslations("validation")
+  const locale = useLocale()
   const metrics = getInvestmentMetrics(investment)
   const isGain = metrics.totalGainLoss > 0
   const isLoss = metrics.totalGainLoss < 0
@@ -85,7 +91,7 @@ function InvestmentRow({
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [draft, setDraft] = useState("")
-  const [priceError, setPriceError] = useState<string | null>(null)
+  const [priceError, setPriceError] = useState<ValidationError | null>(null)
   const [priceWarning, setPriceWarning] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const cancelRef = useRef(false)
@@ -115,7 +121,7 @@ function InvestmentRow({
     setIsSaving(true)
     onUpdateCurrentPrice(investment.id, price).then((result) => {
       if (!result.persisted) {
-        setPriceWarning("Couldn't save to your account. Check your connection and try again.")
+        setPriceWarning(t("couldNotSave"))
       }
       setIsSaving(false)
       setIsEditing(false)
@@ -161,13 +167,13 @@ function InvestmentRow({
       </td>
       <td className="px-5 py-4 text-ink-soft">{investment.platform}</td>
       <td className="px-5 py-4 text-right font-mono tabular-nums text-ink">
-        {formatQuantity(investment.quantity)}
+        {formatQuantity(investment.quantity, locale)}
       </td>
       <td className="px-5 py-4 text-right font-mono tabular-nums text-ink-soft">
-        {formatCurrency(investment.purchasePrice, investment.currency)}
+        {formatCurrency(investment.purchasePrice, investment.currency, locale)}
       </td>
       <td className="px-5 py-4 text-right text-ink-soft">
-        {formatDate(investment.purchaseDate)}
+        {formatDate(investment.purchaseDate, locale)}
       </td>
       <td className="px-5 py-4 text-right">
         <div className="inline-flex flex-col items-end gap-1">
@@ -181,7 +187,7 @@ function InvestmentRow({
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleBlur}
-              aria-label={`Current price for ${investment.assetName}`}
+              aria-label={t("currentPriceFor", { name: investment.assetName })}
               aria-invalid={priceError ? true : undefined}
               className="w-28 rounded-md border border-cobalt bg-paper px-2 py-1 text-right font-mono tabular-nums text-ink focus:outline-none focus:ring-2 focus:ring-cobalt/20"
             />
@@ -189,16 +195,16 @@ function InvestmentRow({
             <button
               type="button"
               onClick={startEditing}
-              title="Tap to edit"
-              aria-label={`Edit current price for ${investment.assetName}`}
+              title={t("tapToEdit")}
+              aria-label={t("editCurrentPrice", { name: investment.assetName })}
               className="rounded-md px-2 py-1 font-mono tabular-nums text-ink transition-colors hover:bg-cobalt-soft hover:text-cobalt"
             >
-              {formatCurrency(investment.currentPrice, investment.currency)}
+              {formatCurrency(investment.currentPrice, investment.currency, locale)}
             </button>
           )}
           {priceError ? (
             <span role="alert" className="max-w-36 text-xs text-loss">
-              {priceError}
+              {renderValidationError(vt, priceError)}
             </span>
           ) : null}
           {priceWarning ? (
@@ -209,17 +215,17 @@ function InvestmentRow({
         </div>
       </td>
       <td className={`px-5 py-4 text-right font-mono tabular-nums font-medium ${tone}`}>
-        {formatCurrency(metrics.totalGainLoss, investment.currency)}
+        {formatCurrency(metrics.totalGainLoss, investment.currency, locale)}
       </td>
       <td className={`px-5 py-4 text-right font-mono tabular-nums font-medium ${tone}`}>
         {direction ? `${direction} ` : ""}
-        {formatPercent(metrics.gainLossPercent)}
+        {formatPercent(metrics.gainLossPercent, locale)}
       </td>
       <td className="px-5 py-4 text-right">
         <button
           type="button"
           onClick={() => onDelete(investment)}
-          aria-label={`Delete ${investment.assetName}`}
+          aria-label={t("deleteAsset", { name: investment.assetName })}
           className="rounded-full p-2 text-ink-faint transition-colors hover:bg-loss/10 hover:text-loss"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -235,4 +241,17 @@ function InvestmentRow({
       </td>
     </tr>
   )
+}
+
+function renderValidationError(
+  t: ReturnType<typeof useTranslations<"validation">>,
+  error: ValidationError,
+): string {
+  if (!error.params) return t(error.key)
+
+  const resolved: Record<string, string | number> = {}
+  for (const [key, value] of Object.entries(error.params)) {
+    resolved[key] = typeof value === "string" ? t(value) : value
+  }
+  return t(error.key, resolved)
 }

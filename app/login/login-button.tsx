@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { createClient } from "@/lib/supabase/client"
 
 export function LoginButton() {
+  const t = useTranslations("login")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -20,7 +22,7 @@ export function LoginButton() {
     })
 
     if (error) {
-      setError("Couldn't start sign-in. Please try again.")
+      setError(t("startError"))
       setIsLoading(false)
     }
   }
@@ -52,7 +54,7 @@ export function LoginButton() {
             d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
           />
         </svg>
-        {isLoading ? "Redirecting…" : "Continue with Google"}
+        {isLoading ? t("redirecting") : t("continueWithGoogle")}
       </button>
 
       {error ? (
